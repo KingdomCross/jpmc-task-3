@@ -23,10 +23,13 @@ class Graph extends Component<IProps, {}> {
     const elem = document.getElementsByTagName('perspective-viewer')[0] as unknown as PerspectiveViewerElement;
 
     const schema = {
-      stock: 'string',
-      top_ask_price: 'float',
-      top_bid_price: 'float',
+      price_abc: 'float',
+      price_def: 'float',
+      ratio: 'float',
       timestamp: 'date',
+      upper_bound: 'float', //trigger_alert
+      lower_bound: 'float', //trigger_alert
+      trigger_alert: 'float',
     };
 
     if (window.perspective && window.perspective.worker()) {
@@ -35,24 +38,26 @@ class Graph extends Component<IProps, {}> {
     if (this.table) {
       // Load the `table` in the `<perspective-viewer>` DOM reference.
       elem.load(this.table);
-      elem.setAttribute('view', 'y_line');
-      elem.setAttribute('column-pivots', '["stock"]');
-      elem.setAttribute('row-pivots', '["timestamp"]');
-      elem.setAttribute('columns', '["top_ask_price"]');
+      elem.setAttribute('view', 'y_line'); // Visualize data
+      elem.setAttribute('row-pivots', '["timestamp"]'); // timestamp
+      elem.setAttribute('columns', '["ratio", "lower_bound", "upper_bound", "trigger_alert"]'); // Distinguish stock ABC with DEF
       elem.setAttribute('aggregates', JSON.stringify({
-        stock: 'distinctcount',
-        top_ask_price: 'avg',
-        top_bid_price: 'avg',
-        timestamp: 'distinct count',
+      price_abc: 'float',
+      price_def: 'float',
+      ratio: 'float',
+      timestamp: 'date',
+      upper_bound: 'float', // trigger_alert
+      lower_bound: 'float', // trigger_alert
+      trigger_alert: 'float',
       }));
     }
   }
 
   componentDidUpdate() {
     if (this.table) {
-      this.table.update(
+      this.table.update([
         DataManipulator.generateRow(this.props.data),
-      );
+        ] as unknown as TableData);
     }
   }
 }
